@@ -1,0 +1,22 @@
+{
+  "name": "node_js",
+  "version": "1.0.0",
+  "description": "tinder for devs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "JS",
+    "backend"
+  ],
+  "author": "Hemu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
