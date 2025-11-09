@@ -1,4 +1,5 @@
 const express = require("express");
+const { adminAuth } = require("./middleware/auth");
 
 const app = express(); // instance of an express js application
 const PORT = 3000;
@@ -9,10 +10,13 @@ app.listen(PORT, () => {
   );
 }); // now our app is listening thru that port ,and the Callback is called only on server running
 
-app.get("/", (req, res) => {
-  res.send("The app is running  ");
-});
+app.use('/admin',adminAuth)
 
-app.use("/goola", (req, res) => {
-  res.send("The app is running  ijijij ");
-});
+app.get("/admin/getUsers",(req,res)=>{
+  console.log("get users")
+  res.send('sending the users data')
+})
+app.get("/admin/deleteUser",(req,res)=>{
+  console.log("del users")
+  res.send('deleting the users data')
+})
