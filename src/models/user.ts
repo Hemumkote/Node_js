@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
+import validator from "validator";
 
 // A simple sanitizer function to escape HTML special characters.
 // This helps prevent Cross-Site Scripting (XSS) attacks.
@@ -34,29 +35,13 @@ const userScheme = new Schema(
       trim: true,
       lowercase: true,
       validate: {
-        validator: function (email: string) {
-          // Email must be a hemu.com address (e.g., someString@hemu.com)
-          const emailRegex = /^[^\s@]+@hemu\.com$/;
-          return emailRegex.test(email);
-        },
-        message: "Email must be a hemu.com address (e.g., user@hemu.com).",
+        validator: validator.isEmail,
+        message: "Invalid email format.",
       },
     },
     password: {
       type: String,
       required: true,
-      minlength: 6,
-      maxlength: 15,
-      validate: {
-        validator: function (password: string) {
-          // This regex enforces at least one lowercase letter, one uppercase letter, one digit, and one special character.
-          const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,15}$/;
-          return passwordRegex.test(password);
-        },
-        message:
-          "Password must be 6-15 characters and contain at least one lowercase letter, one uppercase letter, one number, and one special character (@$!%*?&).",
-      },
     },
     age: {
       type: Number,
