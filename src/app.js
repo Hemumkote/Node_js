@@ -5,6 +5,9 @@ import User from "./models/user.ts";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { validateSignUpData } from "./utils/validation.ts";
+import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
+import { userAuth } from "./middleware/auth.js";
 
 dotenv.config();
 
@@ -12,6 +15,8 @@ const app = express(); // instance of an express js application
 app.use(express.json()); // <-- add this so req.body is populated
 
 const PORT = 3000;
+app.use(cookieParser());
+
 app.post("/signup", async (req, res) => {
   try {
     const data = req.body;
@@ -71,14 +76,23 @@ app.post("/login", async (req, res) => {
       res.status(404).json({ message: "User not found" });
     } else {
       //compare the password with the hashed password stored in the database
-      const isPasswordValid = await bcrypt.compare(
-        password,
-        storedUser.password
-      );
+      const isPasswordValid = bcrypt.compare(password, storedUser.password);
       if (!isPasswordValid) {
         //invalid credentials
         res.status(401).json({ message: "Invalid credentials" });
       } else {
+        //create a JWT token add it to cookie and send to the user
+        const token = jwt.sign(
+          { _id: storedUser._id },
+          process.env.JWT_SECRET,
+          { expiresIn: "1min" }
+        );
+        //or send the cookie innthe response body
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "Strict",
+        });
         //login successful
         res.status(200).json({ message: "Login successful" });
       }
@@ -98,7 +112,25 @@ app.post("/login", async (req, res) => {
     });
   }
 });
-
+app.get("/getUser", userAuth, async (req, res) => {
+  try {
+    //user is added to req object in the userAuth middleware
+    const user = req.user;
+    //send only specific fields in the response
+    res.status(200).json({
+      message: "User data accessed successfully",
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        age: user.age,
+        photoUrl: user.photoUrl,
+      },
+    });
+  } catch (error) {
+    res.status(500).send("Internal Server Error", error);
+  }
+});
 app.get("/user/:age", async (req, res) => {
   try {
     const data = Number(req.params.age);
