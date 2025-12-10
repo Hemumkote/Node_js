@@ -9,8 +9,9 @@ export const userAuth = async (req, res, next) => {
   try {
     const tokenVerification = jwt.verify(token, process.env.JWT_SECRET);
     console.log(tokenVerification);
-    const userId = tokenVerification._id;
+    const userId = tokenVerification.id;
     const user = await User.findById(userId);
+    console.log(user);
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }

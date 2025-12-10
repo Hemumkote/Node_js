@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 import validator from "validator";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 // A simple sanitizer function to escape HTML special characters.
 // This helps prevent Cross-Site Scripting (XSS) attacks.
@@ -103,6 +105,26 @@ const userScheme = new Schema(
     timestamps: true, //keep track of createdAt and updatedAt fields
   }
 );
+
+//these are the instance methods for the user schema used as handlers
+//method to generate JWT token
+userScheme.methods.getJwtToken = async function () {
+  // arrow functions don't bind 'this', so we use function keyword
+  //we can access the user document using 'this' keyword
+  const user = this;
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string);
+  console.log(token);
+  return token;
+};
+
+//method to compare the password
+userScheme.methods.validatePassword = async function (
+  userEnteredPassword: string
+) {
+  const passwordHash = this.password;
+  const isMatch = await bcrypt.compare(userEnteredPassword, passwordHash);
+  return isMatch;
+};
 
 //creating the user model using mongoose.modal(modelName, schema)
 // Model
