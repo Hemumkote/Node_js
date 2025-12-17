@@ -12,9 +12,6 @@ export const userAuth = async (req, res, next) => {
     const userId = tokenVerification.id;
     const user = await User.findById(userId);
     console.log(user);
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
     //attach the user object to the request for further use
     req.user = user;
     //proceed to the next middleware or route handler

@@ -12,7 +12,7 @@ const escapeHtml = (text: string) => {
 };
 
 // creating hte user schema
-const userScheme = new Schema(
+const userScheme = new Schema<any>(
   {
     firstName: {
       type: String,
@@ -63,11 +63,14 @@ const userScheme = new Schema(
     },
     photoUrl: {
       type: String,
-      // required: true,
       default: "https://www.example.com/default-photo.jpg",
       trim: true,
+      set: (url: string) => (url === "" ? undefined : url), // If empty string, use default
       validate: {
         validator: function (url: string) {
+          if (url === "") {
+            return true;
+          }
           // Simple regex to check for a valid URL format
           return /^(ftp|http|https):\/\/[^ "]+$/.test(url);
         },
